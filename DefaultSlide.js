@@ -12,16 +12,16 @@ export default class DefaultSlide extends React.PureComponent {
   render() {
     const style = {
       backgroundColor: this.props.backgroundColor,
-      paddingTop: this.props.topSpacer,
-      paddingBottom: this.props.bottomSpacer,
       width: this.props.width,
       height: this.props.height,
     }
     return (
       <View style={[styles.mainContent, style]}>
-        <Text style={[styles.title, this.props.titleStyle]}>{this.props.title}</Text>
-        <Image source={this.props.image} style={this.props.imageStyle} />
-        <Text style={[styles.text, this.props.textStyle]}>{this.props.text}</Text>
+        <Image 
+          source={this.props.image} 
+          style={this.props.imageStyle} 
+          resizeMode={'stretch'}
+        />
       </View>
     );
   }
@@ -29,8 +29,6 @@ export default class DefaultSlide extends React.PureComponent {
 
 const styles = StyleSheet.create({
   mainContent: {
-    justifyContent: 'space-around',
-    alignItems: 'center',
   },
   text: {
     color: 'rgba(255, 255, 255, .7)',
