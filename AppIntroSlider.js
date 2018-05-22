@@ -51,7 +51,7 @@ export default class AppIntroSlider extends React.Component {
 
   _renderItem = (item) => {
     const { width, height } = this.state;
-    const bottomSpacer = (this.props.bottomButton ? (this.props.showSkipButton ? 44 : 0) + 44 : 0) + (isIphoneX ? 34: 0) + 64;
+    const bottomSpacer = (this.props.bottomButton ? (this.props.showSkipButton ? 44 : 0) + 44 : 0) + (isIphoneX ? 34 : 0) + 64;
     const topSpacer = (isIphoneX ? 44 : 0) + (Platform.OS === 'ios' ? 20 : StatusBar.currentHeight);
     const props = { ...item.item, bottomSpacer, topSpacer, width, height };
 
@@ -59,7 +59,7 @@ export default class AppIntroSlider extends React.Component {
   }
 
   _renderButton = (name, onPress) => {
-    const show = (name === 'Skip' || name === 'Prev') ? this.props[`show${name}Button`] : !this.props[`hide${name}Button`];
+    const show = (name === 'Skip' ||  name === 'Prev') ? this.props[`show${name}Button`] : !this.props[`hide${name}Button`];
     const content = this.props[`render${name}Button`] ? this.props[`render${name}Button`]() : this._renderDefaultButton(name);
     return show && this._renderOuterButton(content, name, onPress);
   }
@@ -73,10 +73,13 @@ export default class AppIntroSlider extends React.Component {
   }
 
   _renderOuterButton = (content, name, onPress) => {
-    const style = (name === 'Skip' || name === 'Prev') ? styles.leftButtonContainer : styles.rightButtonContainer;
+    const style = (name === 'Skip' ||  name === 'Prev') ? styles.leftButtonContainer : styles.rightButtonContainer;
     return (
       <View style={this.props.bottomButton ? styles.bottomButtonContainer : style}>
-        <TouchableOpacity onPress={onPress} style={this.props.bottomButton && styles.flexOne}>
+        <TouchableOpacity onPress={onPress} style={[
+          this.props.bottomButton && styles.flexOne,
+          this.props.buttonStyle
+        ]}>
           {content}
         </TouchableOpacity>
       </View>
@@ -93,31 +96,37 @@ export default class AppIntroSlider extends React.Component {
 
   _renderPagination = () => {
     const isLastSlide = this.state.activeIndex === (this.props.slides.length - 1);
+    const btn = isLastSlide ? this._renderDoneButton() : this._renderNextButton();
+
+    return (
+      <View style={styles.paginationContainer}>
+        <View style={styles.paginationDots}>
+          {this.props.slides.length > 1 && this.props.slides.map((_, i) => (
+            <View
+              key={i}
+              style={[
+                { backgroundColor: i === this.state.activeIndex ? this.props.activeDotColor : this.props.dotColor },
+                styles.dot,
+              ]}
+            />
+          ))}
+          {/* {!this.props.bottomButton && btn} */}
+        </View>
+      </View>
+    )
+  }
+  _renderViewButton = () => {
+    const isLastSlide = this.state.activeIndex === (this.props.slides.length - 1);
     const isFirstSlide = this.state.activeIndex === 0;
 
     const skipBtn = (!isFirstSlide && this._renderPrevButton()) || (!isLastSlide && this._renderSkipButton());
     const btn = isLastSlide ? this._renderDoneButton() : this._renderNextButton();
-
-    return (
-        <View style={styles.paginationContainer}>
-          <View style={styles.paginationDots}>
-            {!this.props.bottomButton && skipBtn}
-            {this.props.slides.length > 1 && this.props.slides.map((_, i) => (
-              <View
-                key={i}
-                style={[
-                  { backgroundColor: i === this.state.activeIndex ? this.props.activeDotColor : this.props.dotColor },
-                  styles.dot,
-                ]}
-              />
-            ))}
-            {/* {!this.props.bottomButton && btn} */}
-          </View>
-          {this.props.bottomButton && skipBtn}
-        </View>
-    )
+    if (this.props.bottomButton) {
+      return skipBtn
+    } else {
+      return null
+    }
   }
-
   _onMomentumScrollEnd = (e) => {
     const offset = e.nativeEvent.contentOffset.x;
     // Touching very very quickly and continuous brings about
